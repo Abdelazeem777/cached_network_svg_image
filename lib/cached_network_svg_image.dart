@@ -8,9 +8,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class CachedNetworkSVGImage extends StatefulWidget {
-  const CachedNetworkSVGImage(
+  CachedNetworkSVGImage(
     String url, {
-    super.key,
+    Key? key,
     Widget? placeholder,
     Widget? errorWidget,
     double? width,
@@ -41,7 +41,8 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _excludeFromSemantics = excludeFromSemantics,
         _clipBehavior = clipBehavior,
         _cacheColorFilter = cacheColorFilter,
-        _theme = theme;
+        _theme = theme,
+        super(key: key ?? ValueKey(url));
 
   final String _url;
   final Widget? _placeholder;
@@ -129,7 +130,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     try {
       final child = SvgPicture.file(
         _imageFile!,
-        fit: BoxFit.cover,
+        fit: widget._fit,
         width: widget._width,
         height: widget._height,
         alignment: widget._alignment,

@@ -57,7 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: CachedNetworkSVGImage(
           _imagesUrlList[_selectedIndex],
-          key: ValueKey(_selectedIndex),
           placeholder: const CircularProgressIndicator(color: Colors.green),
           errorWidget: const Icon(Icons.error, color: Colors.red),
           width: 250.0,
