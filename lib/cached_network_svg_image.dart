@@ -26,6 +26,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
     Clip clipBehavior = Clip.hardEdge,
     bool cacheColorFilter = false,
     SvgTheme? theme,
+    Duration fadeDuration = const Duration(milliseconds: 300),
   })  : _url = url,
         _placeholder = placeholder,
         _errorWidget = errorWidget,
@@ -42,6 +43,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _clipBehavior = clipBehavior,
         _cacheColorFilter = cacheColorFilter,
         _theme = theme,
+        _fadeDuration = fadeDuration,
         super(key: key ?? ValueKey(url));
 
   final String _url;
@@ -60,6 +62,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
   final Clip _clipBehavior;
   final bool _cacheColorFilter;
   final SvgTheme? _theme;
+  final Duration _fadeDuration;
 
   @override
   State<CachedNetworkSVGImage> createState() => _CachedNetworkSVGImageState();
@@ -83,7 +86,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     _cacheManager = DefaultCacheManager();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: widget._fadeDuration,
     );
     _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
     _loadImage();
