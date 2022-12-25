@@ -70,6 +70,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   bool _isLoading = true;
   bool _isError = false;
   File? _imageFile;
+  late String _cacheKey;
 
   late final DefaultCacheManager _cacheManager;
   late final AnimationController _controller;
@@ -77,6 +78,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
   @override
   void initState() {
+    _cacheKey = _generateKeyFromUrl(widget._url);
     super.initState();
     _cacheManager = DefaultCacheManager();
     _controller = AnimationController(
@@ -89,7 +91,8 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
   Future<void> _loadImage() async {
     try {
-      final file = await _cacheManager.getSingleFile(widget._url);
+      final file =
+          await _cacheManager.getSingleFile(widget._url, key: _cacheKey);
       setState(() {
         _imageFile = file;
         _isLoading = false;
@@ -112,6 +115,14 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
   @override
   Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget._width,
+      height: widget._height,
+      child: _buildImage(),
+    );
+  }
+
+  Widget _buildImage() {
     if (_isLoading) return _buildPlaceholderWidget();
 
     if (_isError) return _buildErrorWidget();
@@ -122,32 +133,30 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     );
   }
 
-  Widget _buildPlaceholderWidget() => widget._placeholder ?? const SizedBox();
+  Widget _buildPlaceholderWidget() =>
+      Center(child: widget._placeholder ?? const SizedBox());
 
-  Widget _buildErrorWidget() => widget._errorWidget ?? const SizedBox();
+  Widget _buildErrorWidget() =>
+      Center(child: widget._errorWidget ?? const SizedBox());
 
   Widget _buildSVGImage() {
-    try {
-      final child = SvgPicture.file(
-        _imageFile!,
-        fit: widget._fit,
-        width: widget._width,
-        height: widget._height,
-        alignment: widget._alignment,
-        matchTextDirection: widget._matchTextDirection,
-        allowDrawingOutsideViewBox: widget._allowDrawingOutsideViewBox,
-        color: widget._color,
-        colorBlendMode: widget._colorBlendMode,
-        semanticsLabel: widget._semanticsLabel,
-        excludeFromSemantics: widget._excludeFromSemantics,
-        clipBehavior: widget._clipBehavior,
-        cacheColorFilter: widget._cacheColorFilter,
-        theme: widget._theme,
-      );
-      return child;
-    } catch (e) {
-      log('CachedNetworkSVGImage: $e');
-      return _buildErrorWidget();
-    }
+    return SvgPicture.file(
+      _imageFile!,
+      fit: widget._fit,
+      width: widget._width,
+      height: widget._height,
+      alignment: widget._alignment,
+      matchTextDirection: widget._matchTextDirection,
+      allowDrawingOutsideViewBox: widget._allowDrawingOutsideViewBox,
+      color: widget._color,
+      colorBlendMode: widget._colorBlendMode,
+      semanticsLabel: widget._semanticsLabel,
+      excludeFromSemantics: widget._excludeFromSemantics,
+      clipBehavior: widget._clipBehavior,
+      cacheColorFilter: widget._cacheColorFilter,
+      theme: widget._theme,
+    );
   }
+
+  String _generateKeyFromUrl(String url) => url.split('?').first;
 }
