@@ -5,6 +5,7 @@ CachedNetworkSVGImage(
     errorWidget: const Icon(Icons.error, color: Colors.red),
     width: 250.0,
     height: 250.0,
+    fadeDuration: const Duration(milliseconds: 500),
 ),
 
 ```
