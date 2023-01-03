@@ -66,6 +66,20 @@ class CachedNetworkSVGImage extends StatefulWidget {
 
   @override
   State<CachedNetworkSVGImage> createState() => _CachedNetworkSVGImageState();
+
+  static Future<void> preCache(String imageUrl) {
+    final key = _generateKeyFromUrl(imageUrl);
+    return DefaultCacheManager().downloadFile(key);
+  }
+
+  static Future<void> clearCacheForUrl(String imageUrl) {
+    final key = _generateKeyFromUrl(imageUrl);
+    return DefaultCacheManager().removeFile(key);
+  }
+
+  static Future<void> clearCache() => DefaultCacheManager().emptyCache();
+
+  static String _generateKeyFromUrl(String url) => url.split('?').first;
 }
 
 class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
@@ -81,7 +95,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
   @override
   void initState() {
-    _cacheKey = _generateKeyFromUrl(widget._url);
+    _cacheKey = CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
     super.initState();
     _cacheManager = DefaultCacheManager();
     _controller = AnimationController(
@@ -160,6 +174,4 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       theme: widget._theme,
     );
   }
-
-  String _generateKeyFromUrl(String url) => url.split('?').first;
 }
