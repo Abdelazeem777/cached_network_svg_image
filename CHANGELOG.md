@@ -1,3 +1,7 @@
+## 0.0.4
+
+- Migrate to `flutter_svg` 2.0.1.
+
 ## 0.0.3
 
 - Add support for functions (`preCache` - `clearCacheForUrl` - `clearCache`) built-in inside the `CachedNetworkSVGImage` class.

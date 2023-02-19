@@ -23,10 +23,10 @@ class CachedNetworkSVGImage extends StatefulWidget {
     BlendMode colorBlendMode = BlendMode.srcIn,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
-    Clip clipBehavior = Clip.hardEdge,
-    bool cacheColorFilter = false,
-    SvgTheme? theme,
+    SvgTheme theme = const SvgTheme(),
     Duration fadeDuration = const Duration(milliseconds: 300),
+    ColorFilter? colorFilter,
+    WidgetBuilder? placeholderBuilder,
   })  : _url = url,
         _placeholder = placeholder,
         _errorWidget = errorWidget,
@@ -40,10 +40,10 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _colorBlendMode = colorBlendMode,
         _semanticsLabel = semanticsLabel,
         _excludeFromSemantics = excludeFromSemantics,
-        _clipBehavior = clipBehavior,
-        _cacheColorFilter = cacheColorFilter,
         _theme = theme,
         _fadeDuration = fadeDuration,
+        _colorFilter = colorFilter,
+        _placeholderBuilder = placeholderBuilder,
         super(key: key ?? ValueKey(url));
 
   final String _url;
@@ -59,10 +59,10 @@ class CachedNetworkSVGImage extends StatefulWidget {
   final BlendMode _colorBlendMode;
   final String? _semanticsLabel;
   final bool _excludeFromSemantics;
-  final Clip _clipBehavior;
-  final bool _cacheColorFilter;
-  final SvgTheme? _theme;
+  final SvgTheme _theme;
   final Duration _fadeDuration;
+  final ColorFilter? _colorFilter;
+  final WidgetBuilder? _placeholderBuilder;
 
   @override
   State<CachedNetworkSVGImage> createState() => _CachedNetworkSVGImageState();
@@ -169,8 +169,8 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       colorBlendMode: widget._colorBlendMode,
       semanticsLabel: widget._semanticsLabel,
       excludeFromSemantics: widget._excludeFromSemantics,
-      clipBehavior: widget._clipBehavior,
-      cacheColorFilter: widget._cacheColorFilter,
+      colorFilter: widget._colorFilter,
+      placeholderBuilder: widget._placeholderBuilder,
       theme: widget._theme,
     );
   }

@@ -29,3 +29,5 @@ migrate_working_dir/
 .packages
 build/
 .flutter-plugins-dependencies
+.vscode/settings.json
+.flutter-plugins
