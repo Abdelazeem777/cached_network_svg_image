@@ -117,10 +117,12 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       _controller.forward();
     } catch (e) {
       log('CachedNetworkSVGImage: $e');
-      setState(() {
-        _isError = true;
-        _isLoading = false;
-      });
+      if(mounted) {
+        setState(() {
+          _isError = true;
+          _isLoading = false;
+        });
+      }
     }
   }
 
