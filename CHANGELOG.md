@@ -1,3 +1,9 @@
+## 0.0.5
+
+- Migrate to `flutter_svg` 2.0.4.
+- Fix mount bug.
+- Performance enhancements.
+
 ## 0.0.4
 
 - Migrate to `flutter_svg` 2.0.1.

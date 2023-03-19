@@ -84,7 +84,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
 
 class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     with SingleTickerProviderStateMixin {
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _isError = false;
   File? _imageFile;
   late String _cacheKey;
@@ -108,21 +108,39 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
   Future<void> _loadImage() async {
     try {
-      final file =
-          await _cacheManager.getSingleFile(widget._url, key: _cacheKey);
-      setState(() {
-        _imageFile = file;
-        _isLoading = false;
-      });
+      _setToLoadingAfter15MsIfNeeded();
+
+      var file = (await _cacheManager.getFileFromMemory(_cacheKey))?.file;
+
+      file ??= await _cacheManager.getSingleFile(widget._url, key: _cacheKey);
+
+      _imageFile = file;
+      _isLoading = false;
+
+      _setState();
+
       _controller.forward();
     } catch (e) {
       log('CachedNetworkSVGImage: $e');
-      setState(() {
-        _isError = true;
-        _isLoading = false;
-      });
+
+      _isError = true;
+      _isLoading = false;
+
+      _setState();
     }
   }
+
+  void _setToLoadingAfter15MsIfNeeded() => Future.delayed(
+        const Duration(milliseconds: 15),
+        () {
+          if (!_isLoading && _imageFile == null && !_isError) {
+            _isLoading = true;
+            _setState();
+          }
+        },
+      );
+
+  void _setState() => mounted ? setState(() {}) : null;
 
   @override
   void dispose() {
@@ -157,6 +175,8 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       Center(child: widget._errorWidget ?? const SizedBox());
 
   Widget _buildSVGImage() {
+    if (_imageFile == null) return const SizedBox();
+
     return SvgPicture.file(
       _imageFile!,
       fit: widget._fit,

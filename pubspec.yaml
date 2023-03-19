@@ -1,6 +1,6 @@
 name: cached_network_svg_image
 description: A Flutter package for caching SVG images.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/Abdelazeem777/cached_network_svg_image
 
 environment:
@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_cache_manager: ^3.3.0
-  flutter_svg: ^2.0.1
+  flutter_svg: ^2.0.4
 
 dev_dependencies:
   flutter_test:
