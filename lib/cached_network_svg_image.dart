@@ -25,7 +25,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
     bool excludeFromSemantics = false,
     SvgTheme theme = const SvgTheme(),
     Duration fadeDuration = const Duration(milliseconds: 300),
-    ColorFilter? colorFilter,
+    // ColorFilter? colorFilter,
     WidgetBuilder? placeholderBuilder,
   })  : _url = url,
         _placeholder = placeholder,
@@ -42,7 +42,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _excludeFromSemantics = excludeFromSemantics,
         _theme = theme,
         _fadeDuration = fadeDuration,
-        _colorFilter = colorFilter,
+        // _colorFilter = colorFilter,
         _placeholderBuilder = placeholderBuilder,
         super(key: key ?? ValueKey(url));
 
@@ -61,7 +61,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
   final bool _excludeFromSemantics;
   final SvgTheme _theme;
   final Duration _fadeDuration;
-  final ColorFilter? _colorFilter;
+  // final ColorFilter? _colorFilter;
   final WidgetBuilder? _placeholderBuilder;
 
   @override
@@ -189,7 +189,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       colorBlendMode: widget._colorBlendMode,
       semanticsLabel: widget._semanticsLabel,
       excludeFromSemantics: widget._excludeFromSemantics,
-      colorFilter: widget._colorFilter,
+      // colorFilter: widget._colorFilter,
       placeholderBuilder: widget._placeholderBuilder,
       theme: widget._theme,
     );
