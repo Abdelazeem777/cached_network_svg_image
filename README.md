@@ -9,3 +9,7 @@ CachedNetworkSVGImage(
 ),
 
 ```
+
+# Future plans
+
+[ ] Build a custom cache manager that use the same default mechanism but making the in-memory cache optional synchronous which will improve displaying the image experiance.
