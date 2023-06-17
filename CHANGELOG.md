@@ -1,3 +1,7 @@
+## 0.0.6
+
+- Add support for Windows and Linux.
+
 ## 0.0.5
 
 - Migrate to `flutter_svg` 2.0.4.
