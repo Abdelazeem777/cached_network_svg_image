@@ -15,6 +15,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
     Widget? errorWidget,
     double? width,
     double? height,
+    Map<String, String>? headers,
     BoxFit fit = BoxFit.contain,
     AlignmentGeometry alignment = Alignment.center,
     bool matchTextDirection = false,
@@ -33,6 +34,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _errorWidget = errorWidget,
         _width = width,
         _height = height,
+        _headers = headers,
         _fit = fit,
         _alignment = alignment,
         _matchTextDirection = matchTextDirection,
@@ -53,6 +55,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
   final Widget? _errorWidget;
   final double? _width;
   final double? _height;
+  final Map<String, String>? _headers;
   final BoxFit _fit;
   final AlignmentGeometry _alignment;
   final bool _matchTextDirection;
@@ -121,8 +124,11 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       var file =
           (await widget._cacheManager.getFileFromMemory(_cacheKey))?.file;
 
-      file ??=
-          await widget._cacheManager.getSingleFile(widget._url, key: _cacheKey);
+      file ??= await widget._cacheManager.getSingleFile(
+        widget._url,
+        key: _cacheKey,
+        headers: widget._headers,
+      );
 
       _imageFile = file;
       _isLoading = false;
