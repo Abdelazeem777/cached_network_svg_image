@@ -1,3 +1,7 @@
+## 0.0.7
+
+- Fix supported platforms bug.
+
 ## 0.0.6
 
 - Add support for Windows and Linux.
