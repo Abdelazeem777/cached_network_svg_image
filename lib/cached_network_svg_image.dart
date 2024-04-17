@@ -127,7 +127,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       file ??= await widget._cacheManager.getSingleFile(
         widget._url,
         key: _cacheKey,
-        headers: widget._headers,
+        headers: widget._headers ?? {},
       );
 
       _imageFile = file;
