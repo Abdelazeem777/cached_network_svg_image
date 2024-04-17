@@ -28,6 +28,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
     Duration fadeDuration = const Duration(milliseconds: 300),
     ColorFilter? colorFilter,
     WidgetBuilder? placeholderBuilder,
+    BaseCacheManager? cacheManager,
   })  : _url = url,
         _placeholder = placeholder,
         _errorWidget = errorWidget,
@@ -46,6 +47,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _fadeDuration = fadeDuration,
         _colorFilter = colorFilter,
         _placeholderBuilder = placeholderBuilder,
+        _cacheManager = cacheManager ?? DefaultCacheManager(),
         super(key: key ?? ValueKey(url));
 
   final String _url;
@@ -66,21 +68,29 @@ class CachedNetworkSVGImage extends StatefulWidget {
   final Duration _fadeDuration;
   final ColorFilter? _colorFilter;
   final WidgetBuilder? _placeholderBuilder;
+  final BaseCacheManager _cacheManager;
 
   @override
   State<CachedNetworkSVGImage> createState() => _CachedNetworkSVGImageState();
 
-  static Future<void> preCache(String imageUrl) {
+  static Future<void> preCache(String imageUrl,
+      {BaseCacheManager? cacheManager}) {
     final key = _generateKeyFromUrl(imageUrl);
-    return DefaultCacheManager().downloadFile(key);
+    cacheManager ??= DefaultCacheManager();
+    return cacheManager.downloadFile(key);
   }
 
-  static Future<void> clearCacheForUrl(String imageUrl) {
+  static Future<void> clearCacheForUrl(String imageUrl,
+      {BaseCacheManager? cacheManager}) {
     final key = _generateKeyFromUrl(imageUrl);
-    return DefaultCacheManager().removeFile(key);
+    cacheManager ??= DefaultCacheManager();
+    return cacheManager.removeFile(key);
   }
 
-  static Future<void> clearCache() => DefaultCacheManager().emptyCache();
+  static Future<void> clearCache({BaseCacheManager? cacheManager}) {
+    cacheManager ??= DefaultCacheManager();
+    return cacheManager.emptyCache();
+  }
 
   static String _generateKeyFromUrl(String url) => url.split('?').first;
 }
@@ -92,15 +102,13 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   File? _imageFile;
   late String _cacheKey;
 
-  late final DefaultCacheManager _cacheManager;
   late final AnimationController _controller;
   late final Animation<double> _animation;
 
   @override
   void initState() {
-    _cacheKey = CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
     super.initState();
-    _cacheManager = DefaultCacheManager();
+    _cacheKey = CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
     _controller = AnimationController(
       vsync: this,
       duration: widget._fadeDuration,
@@ -113,9 +121,10 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     try {
       _setToLoadingAfter15MsIfNeeded();
 
-      var file = (await _cacheManager.getFileFromMemory(_cacheKey))?.file;
+      var file =
+          (await widget._cacheManager.getFileFromMemory(_cacheKey))?.file;
 
-      file ??= await _cacheManager.getSingleFile(
+      file ??= await widget._cacheManager.getSingleFile(
         widget._url,
         key: _cacheKey,
         headers: widget._headers,
