@@ -1,3 +1,10 @@
+## 1.0.0
+
+Stable version release 🎉.
+
+- Add support to pass CustomCacheManager instead of the DefaultCacheManager, thanks to [aospiridonov](https://github.com/aospiridonov).
+- Add support to pass headers to the network request, thanks to [joukhar](https://github.com/joukhar).
+
 ## 0.0.7
 
 - Fix supported platforms bug.
