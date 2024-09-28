@@ -1,3 +1,8 @@
+## 1.1.0
+
+- Add optional `cacheKey` parameter to `CachedNetworkSVGImage` constructor to allow custom cache key generation.
+- Update `README.md` with more detailed information about the package.
+
 ## 1.0.0
 
 Stable version release 🎉.
