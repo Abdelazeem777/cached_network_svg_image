@@ -11,6 +11,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
   CachedNetworkSVGImage(
     String url, {
     Key? key,
+    String? cacheKey,
     Widget? placeholder,
     Widget? errorWidget,
     double? width,
@@ -30,6 +31,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
     WidgetBuilder? placeholderBuilder,
     BaseCacheManager? cacheManager,
   })  : _url = url,
+        _cacheKey = cacheKey,
         _placeholder = placeholder,
         _errorWidget = errorWidget,
         _width = width,
@@ -51,6 +53,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
         super(key: key ?? ValueKey(url));
 
   final String _url;
+  final String? _cacheKey;
   final Widget? _placeholder;
   final Widget? _errorWidget;
   final double? _width;
@@ -73,16 +76,22 @@ class CachedNetworkSVGImage extends StatefulWidget {
   @override
   State<CachedNetworkSVGImage> createState() => _CachedNetworkSVGImageState();
 
-  static Future<void> preCache(String imageUrl,
-      {BaseCacheManager? cacheManager}) {
-    final key = _generateKeyFromUrl(imageUrl);
+  static Future<void> preCache(
+    String imageUrl, {
+    String? cacheKey,
+    BaseCacheManager? cacheManager,
+  }) {
+    final key = cacheKey ?? _generateKeyFromUrl(imageUrl);
     cacheManager ??= DefaultCacheManager();
     return cacheManager.downloadFile(key);
   }
 
-  static Future<void> clearCacheForUrl(String imageUrl,
-      {BaseCacheManager? cacheManager}) {
-    final key = _generateKeyFromUrl(imageUrl);
+  static Future<void> clearCacheForUrl(
+    String imageUrl, {
+    String? cacheKey,
+    BaseCacheManager? cacheManager,
+  }) {
+    final key = cacheKey ?? _generateKeyFromUrl(imageUrl);
     cacheManager ??= DefaultCacheManager();
     return cacheManager.removeFile(key);
   }
@@ -108,7 +117,8 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   @override
   void initState() {
     super.initState();
-    _cacheKey = CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
+    _cacheKey = widget._cacheKey ??
+        CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
     _controller = AnimationController(
       vsync: this,
       duration: widget._fadeDuration,
