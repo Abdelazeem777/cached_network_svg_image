@@ -19,15 +19,3 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
-  plugin:
-    platforms:
-      android:
-        default_package: cached_network_svg_image
-      ios:
-        default_package: cached_network_svg_image
-      macos:
-        default_package: cached_network_svg_image
-      windows:
-        default_package: cached_network_svg_image
-      linux:
-        default_package: cached_network_svg_image
