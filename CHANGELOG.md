@@ -1,3 +1,7 @@
+## 1.2.0
+
+- Fix building issue with Flutter v3.27.0.
+
 ## 1.1.0
 
 - Add optional `cacheKey` parameter to `CachedNetworkSVGImage` constructor to allow custom cache key generation.
