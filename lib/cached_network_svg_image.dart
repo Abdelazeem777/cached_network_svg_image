@@ -1,11 +1,13 @@
 library cached_network_svg_image;
 
 import 'dart:developer';
-import 'dart:io';
 
+import 'package:cached_network_svg_image/loaders.dart';
+import 'package:cross_file/cross_file.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CachedNetworkSVGImage extends StatefulWidget {
   CachedNetworkSVGImage(
@@ -21,8 +23,6 @@ class CachedNetworkSVGImage extends StatefulWidget {
     AlignmentGeometry alignment = Alignment.center,
     bool matchTextDirection = false,
     bool allowDrawingOutsideViewBox = false,
-    @deprecated Color? color,
-    @deprecated BlendMode colorBlendMode = BlendMode.srcIn,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
     SvgTheme theme = const SvgTheme(),
@@ -41,8 +41,6 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _alignment = alignment,
         _matchTextDirection = matchTextDirection,
         _allowDrawingOutsideViewBox = allowDrawingOutsideViewBox,
-        _color = color,
-        _colorBlendMode = colorBlendMode,
         _semanticsLabel = semanticsLabel,
         _excludeFromSemantics = excludeFromSemantics,
         _theme = theme,
@@ -63,8 +61,6 @@ class CachedNetworkSVGImage extends StatefulWidget {
   final AlignmentGeometry _alignment;
   final bool _matchTextDirection;
   final bool _allowDrawingOutsideViewBox;
-  final Color? _color;
-  final BlendMode _colorBlendMode;
   final String? _semanticsLabel;
   final bool _excludeFromSemantics;
   final SvgTheme _theme;
@@ -108,7 +104,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isError = false;
-  File? _imageFile;
+  XFile? _imageFile;
   late String _cacheKey;
 
   late final AnimationController _controller;
@@ -140,7 +136,12 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
         headers: widget._headers ?? {},
       );
 
-      _imageFile = file;
+      if (kIsWeb) {
+        _imageFile = XFile(file.path,
+            length: file.lengthSync(), bytes: file.readAsBytesSync());
+      } else {
+        _imageFile = XFile(file.path);
+      }
       _isLoading = false;
 
       _setState();
@@ -203,21 +204,18 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   Widget _buildSVGImage() {
     if (_imageFile == null) return const SizedBox();
 
-    return SvgPicture.file(
-      _imageFile!,
+    return SvgPicture(
+      SvgXFileLoader(_imageFile!, theme: widget._theme),
       fit: widget._fit,
       width: widget._width,
       height: widget._height,
       alignment: widget._alignment,
       matchTextDirection: widget._matchTextDirection,
       allowDrawingOutsideViewBox: widget._allowDrawingOutsideViewBox,
-      color: widget._color,
-      colorBlendMode: widget._colorBlendMode,
       semanticsLabel: widget._semanticsLabel,
       excludeFromSemantics: widget._excludeFromSemantics,
       colorFilter: widget._colorFilter,
       placeholderBuilder: widget._placeholderBuilder,
-      theme: widget._theme,
     );
   }
 }
