@@ -145,7 +145,9 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
       _setState();
 
-      _controller.forward();
+      if (mounted && _controller != null) {
+        _controller.forward();
+      }
     } catch (e) {
       log('CachedNetworkSVGImage: $e');
 
