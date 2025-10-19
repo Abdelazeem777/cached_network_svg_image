@@ -30,27 +30,27 @@ class CachedNetworkSVGImage extends StatefulWidget {
     ColorFilter? colorFilter,
     WidgetBuilder? placeholderBuilder,
     BaseCacheManager? cacheManager,
-  })  : _url = url,
-        _cacheKey = cacheKey,
-        _placeholder = placeholder,
-        _errorWidget = errorWidget,
-        _width = width,
-        _height = height,
-        _headers = headers,
-        _fit = fit,
-        _alignment = alignment,
-        _matchTextDirection = matchTextDirection,
-        _allowDrawingOutsideViewBox = allowDrawingOutsideViewBox,
-        _color = color,
-        _colorBlendMode = colorBlendMode,
-        _semanticsLabel = semanticsLabel,
-        _excludeFromSemantics = excludeFromSemantics,
-        _theme = theme,
-        _fadeDuration = fadeDuration,
-        _colorFilter = colorFilter,
-        _placeholderBuilder = placeholderBuilder,
-        _cacheManager = cacheManager ?? DefaultCacheManager(),
-        super(key: key ?? ValueKey(url));
+  }) : _url = url,
+       _cacheKey = cacheKey,
+       _placeholder = placeholder,
+       _errorWidget = errorWidget,
+       _width = width,
+       _height = height,
+       _headers = headers,
+       _fit = fit,
+       _alignment = alignment,
+       _matchTextDirection = matchTextDirection,
+       _allowDrawingOutsideViewBox = allowDrawingOutsideViewBox,
+       _color = color,
+       _colorBlendMode = colorBlendMode,
+       _semanticsLabel = semanticsLabel,
+       _excludeFromSemantics = excludeFromSemantics,
+       _theme = theme,
+       _fadeDuration = fadeDuration,
+       _colorFilter = colorFilter,
+       _placeholderBuilder = placeholderBuilder,
+       _cacheManager = cacheManager ?? DefaultCacheManager(),
+       super(key: key ?? ValueKey(url));
 
   final String _url;
   final String? _cacheKey;
@@ -117,7 +117,8 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   @override
   void initState() {
     super.initState();
-    _cacheKey = widget._cacheKey ??
+    _cacheKey =
+        widget._cacheKey ??
         CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
     _controller = AnimationController(
       vsync: this,
@@ -131,8 +132,9 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     try {
       _setToLoadingAfter15MsIfNeeded();
 
-      var file =
-          (await widget._cacheManager.getFileFromMemory(_cacheKey))?.file;
+      var file = (await widget._cacheManager.getFileFromMemory(
+        _cacheKey,
+      ))?.file;
 
       file ??= await widget._cacheManager.getSingleFile(
         widget._url,
@@ -145,7 +147,9 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
       _setState();
 
-      _controller.forward();
+      if (mounted && _controller != null) {
+        _controller.forward();
+      }
     } catch (e) {
       log('CachedNetworkSVGImage: $e');
 
@@ -156,15 +160,13 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     }
   }
 
-  void _setToLoadingAfter15MsIfNeeded() => Future.delayed(
-        const Duration(milliseconds: 15),
-        () {
-          if (!_isLoading && _imageFile == null && !_isError) {
-            _isLoading = true;
-            _setState();
-          }
-        },
-      );
+  void _setToLoadingAfter15MsIfNeeded() =>
+      Future.delayed(const Duration(milliseconds: 15), () {
+        if (!_isLoading && _imageFile == null && !_isError) {
+          _isLoading = true;
+          _setState();
+        }
+      });
 
   void _setState() => mounted ? setState(() {}) : null;
 
@@ -188,10 +190,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
     if (_isError) return _buildErrorWidget();
 
-    return FadeTransition(
-      opacity: _animation,
-      child: _buildSVGImage(),
-    );
+    return FadeTransition(opacity: _animation, child: _buildSVGImage());
   }
 
   Widget _buildPlaceholderWidget() =>
