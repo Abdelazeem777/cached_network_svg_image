@@ -6,7 +6,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -57,8 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: CachedNetworkSVGImage(
           _imagesUrlList[_selectedIndex],
-          placeholderBuilder: (_) => const CircularProgressIndicator(color: Colors.green),
-          errorBuilder: (_, __, ___) => const Icon(Icons.error, color: Colors.red),
+          placeholder: const CircularProgressIndicator(color: Colors.green),
+          errorWidget: const Icon(Icons.error, color: Colors.red),
           width: 250.0,
           height: 250.0,
           fadeDuration: const Duration(milliseconds: 700),
