@@ -1,3 +1,8 @@
+## 2.0.0
+
+- Major update: Add support for Web! 🌐
+- Zero performance regression on Mobile (uses standard `dart:io`).
+
 ## 1.2.0
 
 - Fix building issue with Flutter v3.27.0.

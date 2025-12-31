@@ -1,6 +1,7 @@
 # Cached Network SVG Image
 
 `cached_network_svg_image` is a Flutter package that allows you to easily load and cache SVG images from the network. It provides a simple and efficient way to display SVG images with caching, placeholders, and error handling. 🌐🖼️
+Now supports **Web**! 🌍
 
 ## Features ✨
 
