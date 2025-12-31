@@ -1,11 +1,12 @@
 library cached_network_svg_image;
 
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+import 'src/image_loader.dart';
 
 class CachedNetworkSVGImage extends StatefulWidget {
   CachedNetworkSVGImage(
@@ -108,7 +109,10 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isError = false;
-  File? _imageFile;
+  
+  // ignore: prefer_typing_uninitialized_variables
+  var _imageFile;
+  
   late String _cacheKey;
 
   late final AnimationController _controller;
@@ -131,16 +135,13 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     try {
       _setToLoadingAfter15MsIfNeeded();
 
-      var file =
-          (await widget._cacheManager.getFileFromMemory(_cacheKey))?.file;
-
-      file ??= await widget._cacheManager.getSingleFile(
+      _imageFile = await PlatformImageLoader.load(
         widget._url,
-        key: _cacheKey,
-        headers: widget._headers ?? {},
+        _cacheKey,
+        widget._cacheManager,
+        widget._headers,
       );
 
-      _imageFile = file;
       _isLoading = false;
 
       _setState();
@@ -205,8 +206,8 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   Widget _buildSVGImage() {
     if (_imageFile == null) return const SizedBox();
 
-    return SvgPicture.file(
-      _imageFile!,
+    return PlatformImageLoader.build(
+      _imageFile,
       fit: widget._fit,
       width: widget._width,
       height: widget._height,
