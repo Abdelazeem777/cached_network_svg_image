@@ -1,6 +1,7 @@
 library cached_network_svg_image;
 
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,8 +23,9 @@ class CachedNetworkSVGImage extends StatefulWidget {
     AlignmentGeometry alignment = Alignment.center,
     bool matchTextDirection = false,
     bool allowDrawingOutsideViewBox = false,
-    @deprecated Color? color,
-    @deprecated BlendMode colorBlendMode = BlendMode.srcIn,
+    @Deprecated('Use colorFilter instead.') Color? color,
+    @Deprecated('Use colorFilter instead.')
+    BlendMode colorBlendMode = BlendMode.srcIn,
     String? semanticsLabel,
     bool excludeFromSemantics = false,
     SvgTheme theme = const SvgTheme(),
@@ -109,10 +111,9 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isError = false;
-  
-  // ignore: prefer_typing_uninitialized_variables
-  var _imageFile;
-  
+
+  Uint8List? _imageBytes;
+
   late String _cacheKey;
 
   late final AnimationController _controller;
@@ -135,7 +136,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     try {
       _setToLoadingAfter15MsIfNeeded();
 
-      _imageFile = await PlatformImageLoader.load(
+      _imageBytes = await PlatformImageLoader.load(
         widget._url,
         _cacheKey,
         widget._cacheManager,
@@ -159,15 +160,13 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     }
   }
 
-  void _setToLoadingAfter15MsIfNeeded() => Future.delayed(
-        const Duration(milliseconds: 15),
-        () {
-          if (!_isLoading && _imageFile == null && !_isError) {
-            _isLoading = true;
-            _setState();
-          }
-        },
-      );
+  void _setToLoadingAfter15MsIfNeeded() =>
+      Future.delayed(const Duration(milliseconds: 15), () {
+        if (!_isLoading && _imageBytes == null && !_isError) {
+          _isLoading = true;
+          _setState();
+        }
+      });
 
   void _setState() => mounted ? setState(() {}) : null;
 
@@ -191,10 +190,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
     if (_isError) return _buildErrorWidget();
 
-    return FadeTransition(
-      opacity: _animation,
-      child: _buildSVGImage(),
-    );
+    return FadeTransition(opacity: _animation, child: _buildSVGImage());
   }
 
   Widget _buildPlaceholderWidget() =>
@@ -204,10 +200,10 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       Center(child: widget._errorWidget ?? const SizedBox());
 
   Widget _buildSVGImage() {
-    if (_imageFile == null) return const SizedBox();
+    if (_imageBytes == null) return const SizedBox();
 
     return PlatformImageLoader.build(
-      _imageFile,
+      _imageBytes!,
       fit: widget._fit,
       width: widget._width,
       height: widget._height,
@@ -221,6 +217,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       colorFilter: widget._colorFilter,
       placeholderBuilder: widget._placeholderBuilder,
       theme: widget._theme,
+      errorBuilder: (context, error, stackTrace) => _buildErrorWidget(),
     );
   }
 }

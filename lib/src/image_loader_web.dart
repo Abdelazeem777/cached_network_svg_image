@@ -5,7 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class PlatformImageLoader {
-  static Future<dynamic> load(
+  static Future<Uint8List> load(
     String url,
     String cacheKey,
     BaseCacheManager cacheManager,
@@ -25,7 +25,7 @@ class PlatformImageLoader {
   }
 
   static Widget build(
-    dynamic imageHandle, {
+    Uint8List imageBytes, {
     required BoxFit fit,
     required double? width,
     required double? height,
@@ -39,23 +39,26 @@ class PlatformImageLoader {
     required ColorFilter? colorFilter,
     required WidgetBuilder? placeholderBuilder,
     required SvgTheme theme,
+    required SvgErrorWidgetBuilder errorBuilder,
   }) {
-    final bytes = imageHandle as Uint8List;
     return SvgPicture.memory(
-      bytes,
+      imageBytes,
       fit: fit,
       width: width,
       height: height,
       alignment: alignment,
       matchTextDirection: matchTextDirection,
       allowDrawingOutsideViewBox: allowDrawingOutsideViewBox,
+      // ignore: deprecated_member_use
       color: color,
+      // ignore: deprecated_member_use
       colorBlendMode: colorBlendMode,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
       colorFilter: colorFilter,
       placeholderBuilder: placeholderBuilder,
       theme: theme,
+      errorBuilder: errorBuilder,
     );
   }
 }

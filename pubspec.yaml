@@ -16,4 +16,5 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  file: ">=6.1.4 <8.0.0"
   flutter_lints: ^2.0.0
