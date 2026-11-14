@@ -2,6 +2,7 @@ library cached_network_svg_image;
 
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -84,7 +85,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
   }) {
     final key = cacheKey ?? _generateKeyFromUrl(imageUrl);
     cacheManager ??= DefaultCacheManager();
-    return cacheManager.downloadFile(key);
+    return cacheManager.downloadFile(imageUrl, key: key);
   }
 
   static Future<void> clearCacheForUrl(
@@ -115,6 +116,10 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
   late String _cacheKey;
 
+  /// Incremented for every load, so a load that finishes after the widget
+  /// changed (or was disposed) can tell it is stale and drop its result.
+  int _loadId = 0;
+
   late final AnimationController _controller;
   late final Animation<double> _animation;
 
@@ -131,7 +136,27 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     _loadImage();
   }
 
+  @override
+  void didUpdateWidget(CachedNetworkSVGImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final newKey = widget._cacheKey ??
+        CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
+    if (newKey == _cacheKey &&
+        widget._url == oldWidget._url &&
+        widget._cacheManager == oldWidget._cacheManager &&
+        mapEquals(widget._headers, oldWidget._headers)) {
+      return;
+    }
+    _cacheKey = newKey;
+    _imageFile = null;
+    _isError = false;
+    _isLoading = false;
+    _controller.reset();
+    _loadImage();
+  }
+
   Future<void> _loadImage() async {
+    final loadId = ++_loadId;
     try {
       _setToLoadingAfter15MsIfNeeded();
 
@@ -141,6 +166,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
         widget._cacheManager,
         widget._headers,
       );
+      if (loadId != _loadId) return;
 
       _isLoading = false;
 
@@ -150,6 +176,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
         _controller.forward();
       }
     } catch (e) {
+      if (loadId != _loadId) return;
       log('CachedNetworkSVGImage: $e');
 
       _isError = true;

@@ -606,11 +606,73 @@ void main() {
         expect(cacheManager.getSingleFileCalls.map((c) => c.url),
             [_url, otherUrl]);
       },
-      // Known bug: the State has no didUpdateWidget, so when the widget key
-      // stays the same a new url/cacheKey is ignored and the old image stays
-      // (lib/cached_network_svg_image.dart:108).
-      skip: true,
     );
+
+    testWidgets('loads the new image when only the cacheKey changes',
+        (tester) async {
+      const key = Key('avatar');
+
+      await pumpLoaded(
+        tester,
+        CachedNetworkSVGImage(_url,
+            key: key, cacheKey: 'a', cacheManager: cacheManager),
+      );
+      await pumpLoaded(
+        tester,
+        CachedNetworkSVGImage(_url,
+            key: key, cacheKey: 'b', cacheManager: cacheManager),
+      );
+
+      expect(cacheManager.getSingleFileCalls.map((c) => c.key), ['a', 'b']);
+    });
+
+    testWidgets('does not reload when rebuilt with the same url and key',
+        (tester) async {
+      const key = Key('avatar');
+
+      await pumpLoaded(
+        tester,
+        CachedNetworkSVGImage(_url, key: key, cacheManager: cacheManager),
+      );
+      await pumpLoaded(
+        tester,
+        CachedNetworkSVGImage(_url, key: key, cacheManager: cacheManager),
+      );
+
+      expect(cacheManager.getSingleFileCalls, hasLength(1));
+    });
+
+    testWidgets('a stale in-flight load does not overwrite the new one',
+        (tester) async {
+      const otherUrl = 'https://example.com/other.svg';
+      const key = Key('avatar');
+      cacheManager.responses[otherUrl] = validSvgBytes;
+      final firstGate = Completer<void>();
+      final secondGate = Completer<void>();
+      cacheManager.gate = firstGate;
+
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(_url, key: key, cacheManager: cacheManager),
+      );
+      await tester.pump(_afterPlaceholderDelay);
+
+      cacheManager.gate = secondGate;
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(otherUrl, key: key, cacheManager: cacheManager),
+      );
+
+      // The new load finishes first, then the stale one (which now fails).
+      cacheManager.responses.remove(_url);
+      secondGate.complete();
+      await tester.pumpAndSettle();
+      expect(find.byType(SvgPicture), findsOneWidget);
+
+      firstGate.complete();
+      await tester.pumpAndSettle();
+      expect(find.byType(SvgPicture), findsOneWidget);
+    });
   });
 
   group('static helpers', () {
@@ -655,8 +717,6 @@ void main() {
         expect(call.url, _url);
         expect(call.key ?? call.url, 'my-key');
       },
-      skip: 'Known bug: preCache calls downloadFile(key), so a custom cacheKey '
-          'is fetched as if it were the URL (lib/cached_network_svg_image.dart:87).',
     );
 
     test(
@@ -674,9 +734,6 @@ void main() {
         expect(call.url, signedUrl);
         expect(call.key ?? call.url, _url);
       },
-      skip: 'Known bug: preCache downloads the query-stripped key instead of '
-          'the full URL, dropping e.g. auth tokens '
-          '(lib/cached_network_svg_image.dart:87).',
     );
 
     test('clearCacheForUrl removes the query-free url key', () async {
