@@ -247,6 +247,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       excludeFromSemantics: widget._excludeFromSemantics,
       colorFilter: widget._colorFilter,
       placeholderBuilder: widget._placeholderBuilder,
+      errorWidget: widget._errorWidget,
       theme: widget._theme,
     );
   }

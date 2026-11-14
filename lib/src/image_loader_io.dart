@@ -36,6 +36,7 @@ class PlatformImageLoader {
     required bool excludeFromSemantics,
     required ColorFilter? colorFilter,
     required WidgetBuilder? placeholderBuilder,
+    Widget? errorWidget,
     required SvgTheme theme,
   }) {
     final file = imageHandle as File;
@@ -53,6 +54,8 @@ class PlatformImageLoader {
       excludeFromSemantics: excludeFromSemantics,
       colorFilter: colorFilter,
       placeholderBuilder: placeholderBuilder,
+      errorBuilder: (context, error, stackTrace) =>
+          Center(child: errorWidget ?? const SizedBox()),
       theme: theme,
     );
   }

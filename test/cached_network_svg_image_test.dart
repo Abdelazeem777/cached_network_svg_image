@@ -509,11 +509,25 @@ void main() {
         );
 
         expect(find.byKey(_errorKey), findsOneWidget);
+        expect(tester.takeException(), isNull);
       },
-      // Known bug: errorWidget only covers download errors. Bytes that fail
-      // to parse leave SvgPicture empty because no errorBuilder is passed
-      // (lib/src/image_loader_io.dart:42, lib/src/image_loader_web.dart:44).
-      skip: true,
+    );
+
+    testWidgets(
+      'renders an empty box when the bytes are not an SVG and no errorWidget '
+      'is given',
+      (tester) async {
+        cacheManager.responses[_url] = invalidSvgBytes;
+
+        await pumpLoaded(
+          tester,
+          CachedNetworkSVGImage(_url, cacheManager: cacheManager),
+        );
+
+        expect(find.byType(SvgPicture), findsOneWidget);
+        expect(find.byType(Center), findsWidgets);
+        expect(tester.takeException(), isNull);
+      },
     );
   });
 
