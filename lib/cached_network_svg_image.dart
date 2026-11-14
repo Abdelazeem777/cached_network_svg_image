@@ -109,10 +109,10 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isError = false;
-  
+
   // ignore: prefer_typing_uninitialized_variables
   var _imageFile;
-  
+
   late String _cacheKey;
 
   late final AnimationController _controller;
