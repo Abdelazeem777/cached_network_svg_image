@@ -57,11 +57,19 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: CachedNetworkSVGImage(
           _imagesUrlList[_selectedIndex],
-          placeholder: const CircularProgressIndicator(color: Colors.green),
-          errorWidget: const Icon(Icons.error, color: Colors.red),
+          placeholder: const CircularProgressIndicator(
+            color: Colors.green,
+            semanticsLabel: 'Loading image',
+          ),
+          errorWidget: const Icon(
+            Icons.error,
+            color: Colors.red,
+            semanticLabel: 'Failed to load image',
+          ),
           width: 250.0,
           height: 250.0,
           fadeDuration: const Duration(milliseconds: 700),
+          semanticsLabel: 'SVG image ${_selectedIndex + 1}',
         ),
       ),
       floatingActionButton: FloatingActionButton(

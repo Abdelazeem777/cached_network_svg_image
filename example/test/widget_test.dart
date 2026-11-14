@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Smoke test for the example app. It runs without network access (the test
+// binding answers every HTTP request with 400), so it checks the app shell
+// and the Next button, not the downloaded images.
 
+import 'package:cached_network_svg_image/cached_network_svg_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:example/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  String? currentUrl(WidgetTester tester) {
+    final key = tester.widget(find.byType(CachedNetworkSVGImage)).key;
+    return (key as ValueKey<String>?)?.value;
+  }
+
+  testWidgets('Next button cycles through the images', (tester) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Cached Network SVG Image Demo'), findsOneWidget);
+    final firstUrl = currentUrl(tester);
+    expect(firstUrl, endsWith('SVG_logo.svg'));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.byTooltip('Next'));
     await tester.pump();
+    expect(currentUrl(tester), isNot(firstUrl));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // 15 images in total: 14 more taps wrap around to the first one.
+    for (var i = 0; i < 14; i++) {
+      await tester.tap(find.byTooltip('Next'));
+      await tester.pump();
+    }
+    expect(currentUrl(tester), firstUrl);
+
+    // Let the widget's 15 ms placeholder timer fire before the test ends.
+    await tester.pump(const Duration(milliseconds: 20));
   });
 }

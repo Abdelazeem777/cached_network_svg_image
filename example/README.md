@@ -14,3 +14,9 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Maestro smoke tests
+
+With the example installed on a running simulator or emulator, run
+`maestro test .maestro` from this folder. The flows load SVGs from
+upload.wikimedia.org, so they need network access.

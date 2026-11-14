@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          flutter pub get
+          cd example && flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test example/lib example/test
+
+      # Infos are reported but not fatal: main has known infos (deprecated
+      # color/colorBlendMode kept on purpose, example super parameters).
+      # Warnings and errors still fail the build.
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Test
+        run: flutter test --coverage
+
+      - name: Test example
+        working-directory: example
+        run: flutter test
+
+      - name: Build example for web
+        working-directory: example
+        run: flutter build web
+
+      # TODO: make required once #23 lands
+      - name: Build example for web (wasm)
+        continue-on-error: true
+        working-directory: example
+        run: flutter build web --wasm
