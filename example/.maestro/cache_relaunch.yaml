@@ -1,0 +1,20 @@
+# Downloads the first SVG, restarts the app without clearing its data and
+# checks the image comes back (served from the flutter_cache_manager cache).
+appId: com.example.example
+name: Shows the cached SVG after a restart
+---
+- retry:
+    maxRetries: 1
+    commands:
+      - launchApp:
+          clearState: true
+      - extendedWaitUntil:
+          visible: "SVG image 1"
+          timeout: 30000
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible: "SVG image 1"
+    timeout: 10000
+- assertNotVisible: "Failed to load image"
