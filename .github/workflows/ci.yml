@@ -46,8 +46,6 @@ jobs:
         working-directory: example
         run: flutter build web
 
-      # TODO: make required once #23 lands
       - name: Build example for web (wasm)
-        continue-on-error: true
         working-directory: example
         run: flutter build web --wasm
