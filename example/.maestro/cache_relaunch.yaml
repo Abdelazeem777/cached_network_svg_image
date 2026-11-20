@@ -10,7 +10,7 @@ name: Shows the cached SVG after a restart
           clearState: true
       - extendedWaitUntil:
           visible: "SVG image 1"
-          timeout: 30000
+          timeout: 20000
 - stopApp
 - launchApp:
     clearState: false

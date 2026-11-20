@@ -2,8 +2,9 @@
 appId: com.example.example
 name: Loads and pages through network SVGs
 ---
-# The SVGs come from upload.wikimedia.org, which now and then rejects a
-# request. One retry from a clean launch keeps that from failing the flow.
+# The example sends a descriptive User-Agent, which Wikimedia requires (it
+# rejects dart:io's default one with HTTP 429). The retry only covers
+# transient network blips: it restarts from a clean launch.
 - retry:
     maxRetries: 1
     commands:
@@ -16,13 +17,13 @@ name: Loads and pages through network SVGs
           timeout: 10000
       - extendedWaitUntil:
           visible: "SVG image 1"
-          timeout: 30000
+          timeout: 20000
       - tapOn: "Next"
       - extendedWaitUntil:
           visible: "SVG image 2"
-          timeout: 30000
+          timeout: 20000
       - tapOn: "Next"
       - extendedWaitUntil:
           visible: "SVG image 3"
-          timeout: 30000
+          timeout: 20000
       - assertNotVisible: "Failed to load image"
