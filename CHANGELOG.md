@@ -1,3 +1,14 @@
+## 2.1.0
+
+- Fix `flutter build web --wasm` (the web loader is now selected with a conditional import that also works under dart2wasm), thanks to [MousyBusiness](https://github.com/MousyBusiness) (#23).
+- Fix `preCache` downloading the cache key instead of the real URL, and dropping the query string, so signed/token URLs now work (#27).
+- Fix the widget not reloading when `url`, `cacheKey`, `headers` or `cacheManager` change under the same widget `key` (#27).
+- Fix `errorWidget` not being shown when the downloaded bytes are not a valid SVG (#29).
+- Raise the minimum SDK to Dart 3.4 / Flutter 3.22 and `flutter_svg` to `^2.0.17` (required for `errorBuilder`) (#29).
+- Fix the README examples (the URL is a positional argument, not `imageUrl:`).
+- Add a test suite, CI workflow and Maestro smoke flows (#26, #28).
+- Example: send a descriptive `User-Agent` (Wikimedia rate-limits dart:io's default one) and use smaller sample SVGs.
+
 ## 2.0.0
 
 - Major update: Add support for Web! 🌐
