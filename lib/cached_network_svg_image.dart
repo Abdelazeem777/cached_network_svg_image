@@ -1,5 +1,6 @@
 library cached_network_svg_image;
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart' show mapEquals;
@@ -120,6 +121,9 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   /// changed (or was disposed) can tell it is stale and drop its result.
   int _loadId = 0;
 
+  /// Shows the placeholder if the current load takes longer than 15 ms.
+  Timer? _loadingTimer;
+
   late final AnimationController _controller;
   late final Animation<double> _animation;
 
@@ -157,9 +161,8 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
 
   Future<void> _loadImage() async {
     final loadId = ++_loadId;
+    _startLoadingTimer(loadId);
     try {
-      _setToLoadingAfter15MsIfNeeded();
-
       final imageFile = await PlatformImageLoader.load(
         widget._url,
         _cacheKey,
@@ -168,6 +171,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       );
       if (loadId != _loadId) return;
 
+      _loadingTimer?.cancel();
       _imageFile = imageFile;
       _isLoading = false;
 
@@ -180,6 +184,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       if (loadId != _loadId) return;
       log('CachedNetworkSVGImage: $e');
 
+      _loadingTimer?.cancel();
       _isError = true;
       _isLoading = false;
 
@@ -187,20 +192,25 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     }
   }
 
-  void _setToLoadingAfter15MsIfNeeded() => Future.delayed(
-        const Duration(milliseconds: 15),
-        () {
-          if (!_isLoading && _imageFile == null && !_isError) {
-            _isLoading = true;
-            _setState();
-          }
-        },
-      );
+  /// Replaces any pending placeholder timer with one for load [loadId], so a
+  /// reload restarts the 15 ms delay and an older load never shows it.
+  void _startLoadingTimer(int loadId) {
+    _loadingTimer?.cancel();
+    _loadingTimer = Timer(const Duration(milliseconds: 15), () {
+      if (loadId != _loadId) return;
+      if (!_isLoading && _imageFile == null && !_isError) {
+        _isLoading = true;
+        _setState();
+      }
+    });
+  }
 
   void _setState() => mounted ? setState(() {}) : null;
 
   @override
   void dispose() {
+    _loadingTimer?.cancel();
+    _loadId++; // Marks any in-flight load as stale.
     _controller.dispose();
     super.dispose();
   }

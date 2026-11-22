@@ -215,6 +215,67 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('restarts the 15 ms placeholder delay when the url changes',
+        (tester) async {
+      const otherUrl = 'https://example.com/other.svg';
+      const key = Key('avatar');
+      cacheManager
+        ..responses[otherUrl] = validSvgBytes
+        ..gate = Completer<void>();
+
+      Widget image(String url) => CachedNetworkSVGImage(
+            url,
+            key: key,
+            placeholder: const SizedBox(key: _placeholderKey),
+            cacheManager: cacheManager,
+          );
+
+      await pumpImage(tester, image(_url));
+      await tester.pump(const Duration(milliseconds: 10));
+      await pumpImage(tester, image(otherUrl));
+
+      // 20 ms after the first load started, but only 10 ms into the new one.
+      await tester.pump(const Duration(milliseconds: 10));
+      expect(find.byKey(_placeholderKey), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 10));
+      expect(find.byKey(_placeholderKey), findsOneWidget);
+
+      cacheManager.gate!.complete();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('leaves no timer or update behind after quick url changes',
+        (tester) async {
+      const urls = [
+        _url,
+        'https://example.com/b.svg',
+        'https://example.com/c.svg',
+      ];
+      cacheManager.gate = Completer<void>();
+
+      for (final url in urls) {
+        cacheManager.responses[url] = validSvgBytes;
+        await pumpImage(
+          tester,
+          CachedNetworkSVGImage(
+            url,
+            placeholder: const SizedBox(key: _placeholderKey),
+            cacheManager: cacheManager,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 5));
+      }
+      await pumpImage(tester, const SizedBox());
+
+      // Finish the loads after dispose without moving the clock. A placeholder
+      // timer still pending here makes the test binding fail the test.
+      cacheManager.gate!.complete();
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('success', () {
