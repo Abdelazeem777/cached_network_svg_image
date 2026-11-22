@@ -160,7 +160,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
     try {
       _setToLoadingAfter15MsIfNeeded();
 
-      _imageFile = await PlatformImageLoader.load(
+      final imageFile = await PlatformImageLoader.load(
         widget._url,
         _cacheKey,
         widget._cacheManager,
@@ -168,6 +168,7 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
       );
       if (loadId != _loadId) return;
 
+      _imageFile = imageFile;
       _isLoading = false;
 
       _setState();

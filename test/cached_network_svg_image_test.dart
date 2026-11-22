@@ -49,6 +49,10 @@ void main() {
   SvgPicture svgPicture(WidgetTester tester) =>
       tester.widget<SvgPicture>(find.byType(SvgPicture));
 
+  /// The bytes of the SVG file currently on screen.
+  List<int> shownSvgBytes(WidgetTester tester) =>
+      (svgPicture(tester).bytesLoader as SvgFileLoader).file.readAsBytesSync();
+
   group('loading', () {
     testWidgets('asks the cache manager for the url with a query-free key',
         (tester) async {
@@ -686,6 +690,43 @@ void main() {
       firstGate.complete();
       await tester.pumpAndSettle();
       expect(find.byType(SvgPicture), findsOneWidget);
+    });
+
+    testWidgets('a stale load that succeeds late does not replace the new one',
+        (tester) async {
+      const otherUrl = 'https://example.com/other.svg';
+      const key = Key('avatar');
+      cacheManager.responses[otherUrl] = otherSvgBytes;
+      final firstGate = Completer<void>();
+      final secondGate = Completer<void>();
+      cacheManager.gate = firstGate;
+
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(_url, key: key, cacheManager: cacheManager),
+      );
+      await tester.pump(_afterPlaceholderDelay);
+
+      cacheManager.gate = secondGate;
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(otherUrl, key: key, cacheManager: cacheManager),
+      );
+
+      // The new load finishes first, then the stale one (which succeeds).
+      secondGate.complete();
+      await tester.pumpAndSettle();
+      expect(shownSvgBytes(tester), otherSvgBytes);
+
+      firstGate.complete();
+      await tester.pumpAndSettle();
+
+      // A rebuild that does not reload must still show the new image.
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(otherUrl, key: key, cacheManager: cacheManager),
+      );
+      expect(shownSvgBytes(tester), otherSvgBytes);
     });
   });
 
