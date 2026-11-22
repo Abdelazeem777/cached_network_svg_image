@@ -59,23 +59,30 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Cached Network SVG Image Demo'),
       ),
       body: Center(
-        child: CachedNetworkSVGImage(
-          _imagesUrlList[_selectedIndex],
-          // Wikimedia's User-Agent policy rate-limits generic ones (dart:io's default); browsers can't set it.
-          headers: kIsWeb ? null : const {'User-Agent': _userAgent},
-          placeholder: const CircularProgressIndicator(
-            color: Colors.green,
-            semanticsLabel: 'Loading image',
-          ),
-          errorWidget: const Icon(
-            Icons.error,
-            color: Colors.red,
-            semanticLabel: 'Failed to load image',
-          ),
-          width: 250.0,
-          height: 250.0,
-          fadeDuration: const Duration(milliseconds: 700),
-          semanticsLabel: 'SVG image ${_selectedIndex + 1}',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CachedNetworkSVGImage(
+              _imagesUrlList[_selectedIndex],
+              // Wikimedia's User-Agent policy rate-limits generic ones (dart:io's default); browsers can't set it.
+              headers: kIsWeb ? null : const {'User-Agent': _userAgent},
+              placeholder: const CircularProgressIndicator(
+                color: Colors.green,
+                semanticsLabel: 'Loading image',
+              ),
+              errorWidget: const Icon(
+                Icons.error,
+                color: Colors.red,
+                semanticLabel: 'Failed to load image',
+              ),
+              width: 250.0,
+              height: 250.0,
+              fadeDuration: const Duration(milliseconds: 700),
+              semanticsLabel: 'SVG image ${_selectedIndex + 1}',
+            ),
+            const SizedBox(height: 16),
+            Text('${_selectedIndex + 1} / ${_imagesUrlList.length}'),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
