@@ -66,10 +66,15 @@ jobs:
           channel: stable
           cache: true
 
-      # --no-example: `flutter pub get` also resolves example/ by default,
-      # which cannot resolve on Dart 3.4.
+      # The example needs Dart >=3.5, so it can't resolve here, and Flutter
+      # 3.22's `flutter pub get` still reads example/ even with --no-example.
+      # This job only checks the package, so drop the example from the
+      # checkout.
+      - name: Remove the example
+        run: rm -rf example
+
       - name: Install dependencies
-        run: flutter pub get --no-example
+        run: flutter pub get
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos lib test
