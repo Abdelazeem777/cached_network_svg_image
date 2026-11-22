@@ -143,6 +143,9 @@ class _CachedNetworkSVGImageState extends State<CachedNetworkSVGImage>
   @override
   void didUpdateWidget(CachedNetworkSVGImage oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget._fadeDuration != oldWidget._fadeDuration) {
+      _controller.duration = widget._fadeDuration;
+    }
     final newKey = widget._cacheKey ??
         CachedNetworkSVGImage._generateKeyFromUrl(widget._url);
     if (newKey == _cacheKey &&

@@ -53,6 +53,16 @@ void main() {
   List<int> shownSvgBytes(WidgetTester tester) =>
       (svgPicture(tester).bytesLoader as SvgFileLoader).file.readAsBytesSync();
 
+  /// The opacity of the fade-in around the SvgPicture.
+  Animation<double> fadeOpacity(WidgetTester tester) => tester
+      .widget<FadeTransition>(
+        find.ancestor(
+          of: find.byType(SvgPicture),
+          matching: find.byType(FadeTransition),
+        ),
+      )
+      .opacity;
+
   group('loading', () {
     testWidgets('asks the cache manager for the url with a query-free key',
         (tester) async {
@@ -307,20 +317,43 @@ void main() {
       );
       await tester.pump(); // load completes, fade starts
 
-      Animation<double> opacity() => tester
-          .widget<FadeTransition>(
-            find.ancestor(
-              of: find.byType(SvgPicture),
-              matching: find.byType(FadeTransition),
-            ),
-          )
-          .opacity;
+      expect(fadeOpacity(tester).value, 0);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(fadeOpacity(tester).value, closeTo(0.5, 0.01));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(fadeOpacity(tester).value, 1);
+    });
 
-      expect(opacity().value, 0);
+    testWidgets('uses the new fadeDuration after it changes', (tester) async {
+      const otherUrl = 'https://example.com/other.svg';
+      const key = Key('avatar');
+      cacheManager.responses[otherUrl] = validSvgBytes;
+
+      await pumpLoaded(
+        tester,
+        CachedNetworkSVGImage(
+          _url,
+          key: key,
+          fadeDuration: const Duration(seconds: 1),
+          cacheManager: cacheManager,
+        ),
+      );
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(
+          otherUrl,
+          key: key,
+          fadeDuration: const Duration(milliseconds: 200),
+          cacheManager: cacheManager,
+        ),
+      );
+      await tester.pump(); // load completes, fade starts
+
+      expect(fadeOpacity(tester).value, 0);
       await tester.pump(const Duration(milliseconds: 100));
-      expect(opacity().value, closeTo(0.5, 0.01));
+      expect(fadeOpacity(tester).value, closeTo(0.5, 0.01));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(opacity().value, 1);
+      expect(fadeOpacity(tester).value, 1);
     });
 
     testWidgets('passes layout and rendering options to SvgPicture',
