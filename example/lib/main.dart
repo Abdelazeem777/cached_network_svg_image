@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   static const _userAgent =
-      'cached_network_svg_image-example/2.1.0 (https://github.com/Abdelazeem777/cached_network_svg_image)';
+      'cached_network_svg_image-example (https://github.com/Abdelazeem777/cached_network_svg_image)';
 
   int _selectedIndex = 0;
   @override
