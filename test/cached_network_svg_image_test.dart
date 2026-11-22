@@ -597,9 +597,9 @@ void main() {
   });
 
   group('identity', () {
-    testWidgets('defaults the widget key to ValueKey(url)', (tester) async {
+    testWidgets('does not set a widget key by default', (tester) async {
       final image = CachedNetworkSVGImage(_url, cacheManager: cacheManager);
-      expect(image.key, const ValueKey(_url));
+      expect(image.key, isNull);
 
       const explicit = Key('explicit');
       expect(
@@ -607,6 +607,23 @@ void main() {
             .key,
         explicit,
       );
+    });
+
+    testWidgets('two siblings with the same url build without a key clash',
+        (tester) async {
+      await pumpLoaded(
+        tester,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CachedNetworkSVGImage(_url, cacheManager: cacheManager),
+            CachedNetworkSVGImage(_url, cacheManager: cacheManager),
+          ],
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SvgPicture), findsNWidgets(2));
     });
 
     testWidgets('urls that differ only by query share one cache entry',

@@ -53,7 +53,7 @@ class CachedNetworkSVGImage extends StatefulWidget {
         _colorFilter = colorFilter,
         _placeholderBuilder = placeholderBuilder,
         _cacheManager = cacheManager ?? DefaultCacheManager(),
-        super(key: key ?? ValueKey(url));
+        super(key: key);
 
   final String _url;
   final String? _cacheKey;
