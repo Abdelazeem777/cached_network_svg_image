@@ -32,20 +32,20 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static const _imagesUrlList = [
     'https://upload.wikimedia.org/wikipedia/commons/0/02/SVG_logo.svg',
-    'https://upload.wikimedia.org/wikipedia/commons/9/99/Unofficial_JavaScript_logo_2.svg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/71/Epsilon_letter%2C_Mega_Etymologikon%2C_1499.svg',
     'https://upload.wikimedia.org/wikipedia/commons/0/0a/Python.svg',
     'https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg',
     'https://upload.wikimedia.org/wikipedia/commons/9/96/Sass_Logo_Color.svg',
     'https://upload.wikimedia.org/wikipedia/commons/2/27/PHP-logo.svg',
-    'https://upload.wikimedia.org/wikipedia/commons/d/d9/Node.js_logo.svg',
+    'https://upload.wikimedia.org/wikipedia/commons/5/57/Delta_letter%2C_Mega_Etymologikon%2C_1499.svg',
     'https://upload.wikimedia.org/wikipedia/commons/9/91/Electron_Software_Framework_Logo.svg',
-    'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e2/202009_Allosaurus_fragilis.svg',
     'https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg',
     'https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg',
     'https://upload.wikimedia.org/wikipedia/commons/7/73/Ruby_logo.svg',
-    'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/34/202101_Zebrafish.svg',
     'https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg',
-    'https://raw.githubusercontent.com/dnfield/flutter_svg/master/packages/flutter_svg/example/assets/flutter_logo.svg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/bb/Lamda_letter%2C_Mega_Etymologikon%2C_1499.svg',
   ];
 
   static const _userAgent =

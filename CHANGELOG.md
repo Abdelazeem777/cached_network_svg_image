@@ -7,7 +7,7 @@
 - Raise the minimum SDK to Dart 3.4 / Flutter 3.22 and `flutter_svg` to `^2.0.17` (required for `errorBuilder`) (#29).
 - Fix the README examples (the URL is a positional argument, not `imageUrl:`).
 - Add a test suite, CI workflow and Maestro smoke flows (#26, #28).
-- Example: send a descriptive `User-Agent` (Wikimedia rate-limits dart:io's default one) and use smaller sample SVGs.
+- Example: send a descriptive `User-Agent`, since Wikimedia rate-limits dart:io's default one.
 
 ## 2.0.0
 
