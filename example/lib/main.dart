@@ -1,4 +1,5 @@
 import 'package:cached_network_svg_image/cached_network_svg_image.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 void main() {
@@ -47,6 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
     'https://upload.wikimedia.org/wikipedia/commons/b/bb/Lamda_letter%2C_Mega_Etymologikon%2C_1499.svg',
   ];
 
+  static const _userAgent =
+      'cached_network_svg_image-example/2.1.0 (https://github.com/Abdelazeem777/cached_network_svg_image)';
+
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
@@ -57,6 +61,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: CachedNetworkSVGImage(
           _imagesUrlList[_selectedIndex],
+          // Wikimedia's User-Agent policy rate-limits generic ones (dart:io's default); browsers can't set it.
+          headers: kIsWeb ? null : const {'User-Agent': _userAgent},
           placeholder: const CircularProgressIndicator(
             color: Colors.green,
             semanticsLabel: 'Loading image',

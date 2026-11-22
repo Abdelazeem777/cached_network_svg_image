@@ -17,7 +17,7 @@ Add the following to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  cached_network_svg_image: any
+  cached_network_svg_image: ^2.1.0
 ```
 
 Then, run `flutter pub get` to install the package. 🚀
@@ -34,7 +34,7 @@ Use the `CachedNetworkSVGImage` widget to display an SVG image from the network:
 
 ```dart
 CachedNetworkSVGImage(
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/02/SVG_logo.svg',
+    'https://upload.wikimedia.org/wikipedia/commons/0/02/SVG_logo.svg',
     placeholder: const CircularProgressIndicator(color: Colors.green),
     errorWidget: const Icon(Icons.error, color: Colors.red),
     width: 250.0,
@@ -45,7 +45,7 @@ CachedNetworkSVGImage(
 
 ### Parameters 📋
 
-- `imageUrl`: The URL of the SVG image. 🌐
+- `url` (positional): The URL of the SVG image. 🌐
 - `cacheKey`: A custom cache key to use for the image. 🔑
 - `placeholder`: A widget to display while the image is loading. ⏳
 - `errorWidget`: A widget to display if the image fails to load. ❌
@@ -94,7 +94,7 @@ class MyApp extends StatelessWidget {
                 ),
                 body: Center(
                     child: CachedNetworkSVGImage(
-                        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/02/SVG_logo.svg',
+                        'https://upload.wikimedia.org/wikipedia/commons/0/02/SVG_logo.svg',
                         placeholder: const CircularProgressIndicator(color: Colors.green),
                         errorWidget: const Icon(Icons.error, color: Colors.red),
                         width: 250.0,
