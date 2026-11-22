@@ -66,8 +66,10 @@ jobs:
           channel: stable
           cache: true
 
+      # --no-example: `flutter pub get` also resolves example/ by default,
+      # which cannot resolve on Dart 3.4.
       - name: Install dependencies
-        run: flutter pub get
+        run: flutter pub get --no-example
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos lib test
