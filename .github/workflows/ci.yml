@@ -49,3 +49,28 @@ jobs:
       - name: Build example for web (wasm)
         working-directory: example
         run: flutter build web --wasm
+
+  # The oldest Flutter the package declares (pubspec `flutter: ">=3.22.0"`):
+  # checks that the package still resolves, analyzes and passes its tests
+  # there. Only the package itself: the example needs Dart >=3.5 (Flutter 3.22
+  # ships Dart 3.4), so it stays in the stable job, as does the format check.
+  floor:
+    name: Flutter 3.22.0 (minimum)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.22.0"
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos lib test
+
+      - name: Test
+        run: flutter test
