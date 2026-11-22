@@ -13,6 +13,12 @@ final validSvgBytes = utf8.encode(
   'viewBox="0 0 10 10"><rect width="10" height="10" fill="#ff0000"/></svg>',
 );
 
+/// A second valid SVG (a 10x10 blue square), to tell two images apart.
+final otherSvgBytes = utf8.encode(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" '
+  'viewBox="0 0 10 10"><rect width="10" height="10" fill="#0000ff"/></svg>',
+);
+
 /// Bytes that download fine but are not an SVG document.
 final invalidSvgBytes = utf8.encode('<<< definitely not an svg >>>');
 

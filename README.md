@@ -46,7 +46,7 @@ CachedNetworkSVGImage(
 ### Parameters 📋
 
 - `url` (positional): The URL of the SVG image. 🌐
-- `cacheKey`: A custom cache key to use for the image. 🔑
+- `cacheKey`: A custom cache key to use for the image. Defaults to the URL without its query string, see [Cache key](#cache-key). 🔑
 - `placeholder`: A widget to display while the image is loading. ⏳
 - `errorWidget`: A widget to display if the image fails to load. ❌
 - `width`: The width of the image. 📏
@@ -71,6 +71,12 @@ CachedNetworkSVGImage(
 - `preCache`: A function to pre-cache the image. 📦
 - `clearCacheForUrl`: A function to clear the cache for a specific URL. 🗑️
 - `clearCache`: A function to clear the entire cache. 🗑️
+
+### Cache key
+
+By default an image is cached under its URL without the query string, that is everything before the first `?`. For example, `https://example.com/logo.svg?v=2` is cached as `https://example.com/logo.svg`. The download itself still uses the full URL, query included.
+
+So URLs that differ only in their query share one cache entry: once `logo.svg?v=1` is cached, `logo.svg?v=2` is served from that cached file instead of being downloaded. That suits signed URLs whose token changes while the image stays the same. When the query does pick a different image (a version, a size, a user), pass a `cacheKey` that includes it, for example `cacheKey: url`. `preCache` and `clearCacheForUrl` use the same rule, so give them the same `cacheKey`.
 
 ## Example 💡
 

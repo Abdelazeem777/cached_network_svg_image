@@ -49,6 +49,20 @@ void main() {
   SvgPicture svgPicture(WidgetTester tester) =>
       tester.widget<SvgPicture>(find.byType(SvgPicture));
 
+  /// The bytes of the SVG file currently on screen.
+  List<int> shownSvgBytes(WidgetTester tester) =>
+      (svgPicture(tester).bytesLoader as SvgFileLoader).file.readAsBytesSync();
+
+  /// The opacity of the fade-in around the SvgPicture.
+  Animation<double> fadeOpacity(WidgetTester tester) => tester
+      .widget<FadeTransition>(
+        find.ancestor(
+          of: find.byType(SvgPicture),
+          matching: find.byType(FadeTransition),
+        ),
+      )
+      .opacity;
+
   group('loading', () {
     testWidgets('asks the cache manager for the url with a query-free key',
         (tester) async {
@@ -211,6 +225,67 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('restarts the 15 ms placeholder delay when the url changes',
+        (tester) async {
+      const otherUrl = 'https://example.com/other.svg';
+      const key = Key('avatar');
+      cacheManager
+        ..responses[otherUrl] = validSvgBytes
+        ..gate = Completer<void>();
+
+      Widget image(String url) => CachedNetworkSVGImage(
+            url,
+            key: key,
+            placeholder: const SizedBox(key: _placeholderKey),
+            cacheManager: cacheManager,
+          );
+
+      await pumpImage(tester, image(_url));
+      await tester.pump(const Duration(milliseconds: 10));
+      await pumpImage(tester, image(otherUrl));
+
+      // 20 ms after the first load started, but only 10 ms into the new one.
+      await tester.pump(const Duration(milliseconds: 10));
+      expect(find.byKey(_placeholderKey), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 10));
+      expect(find.byKey(_placeholderKey), findsOneWidget);
+
+      cacheManager.gate!.complete();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('leaves no timer or update behind after quick url changes',
+        (tester) async {
+      const urls = [
+        _url,
+        'https://example.com/b.svg',
+        'https://example.com/c.svg',
+      ];
+      cacheManager.gate = Completer<void>();
+
+      for (final url in urls) {
+        cacheManager.responses[url] = validSvgBytes;
+        await pumpImage(
+          tester,
+          CachedNetworkSVGImage(
+            url,
+            placeholder: const SizedBox(key: _placeholderKey),
+            cacheManager: cacheManager,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 5));
+      }
+      await pumpImage(tester, const SizedBox());
+
+      // Finish the loads after dispose without moving the clock. A placeholder
+      // timer still pending here makes the test binding fail the test.
+      cacheManager.gate!.complete();
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+    });
   });
 
   group('success', () {
@@ -242,20 +317,43 @@ void main() {
       );
       await tester.pump(); // load completes, fade starts
 
-      Animation<double> opacity() => tester
-          .widget<FadeTransition>(
-            find.ancestor(
-              of: find.byType(SvgPicture),
-              matching: find.byType(FadeTransition),
-            ),
-          )
-          .opacity;
+      expect(fadeOpacity(tester).value, 0);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(fadeOpacity(tester).value, closeTo(0.5, 0.01));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(fadeOpacity(tester).value, 1);
+    });
 
-      expect(opacity().value, 0);
+    testWidgets('uses the new fadeDuration after it changes', (tester) async {
+      const otherUrl = 'https://example.com/other.svg';
+      const key = Key('avatar');
+      cacheManager.responses[otherUrl] = validSvgBytes;
+
+      await pumpLoaded(
+        tester,
+        CachedNetworkSVGImage(
+          _url,
+          key: key,
+          fadeDuration: const Duration(seconds: 1),
+          cacheManager: cacheManager,
+        ),
+      );
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(
+          otherUrl,
+          key: key,
+          fadeDuration: const Duration(milliseconds: 200),
+          cacheManager: cacheManager,
+        ),
+      );
+      await tester.pump(); // load completes, fade starts
+
+      expect(fadeOpacity(tester).value, 0);
       await tester.pump(const Duration(milliseconds: 100));
-      expect(opacity().value, closeTo(0.5, 0.01));
+      expect(fadeOpacity(tester).value, closeTo(0.5, 0.01));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(opacity().value, 1);
+      expect(fadeOpacity(tester).value, 1);
     });
 
     testWidgets('passes layout and rendering options to SvgPicture',
@@ -532,9 +630,9 @@ void main() {
   });
 
   group('identity', () {
-    testWidgets('defaults the widget key to ValueKey(url)', (tester) async {
+    testWidgets('does not set a widget key by default', (tester) async {
       final image = CachedNetworkSVGImage(_url, cacheManager: cacheManager);
-      expect(image.key, const ValueKey(_url));
+      expect(image.key, isNull);
 
       const explicit = Key('explicit');
       expect(
@@ -542,6 +640,23 @@ void main() {
             .key,
         explicit,
       );
+    });
+
+    testWidgets('two siblings with the same url build without a key clash',
+        (tester) async {
+      await pumpLoaded(
+        tester,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CachedNetworkSVGImage(_url, cacheManager: cacheManager),
+            CachedNetworkSVGImage(_url, cacheManager: cacheManager),
+          ],
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SvgPicture), findsNWidgets(2));
     });
 
     testWidgets('urls that differ only by query share one cache entry',
@@ -686,6 +801,43 @@ void main() {
       firstGate.complete();
       await tester.pumpAndSettle();
       expect(find.byType(SvgPicture), findsOneWidget);
+    });
+
+    testWidgets('a stale load that succeeds late does not replace the new one',
+        (tester) async {
+      const otherUrl = 'https://example.com/other.svg';
+      const key = Key('avatar');
+      cacheManager.responses[otherUrl] = otherSvgBytes;
+      final firstGate = Completer<void>();
+      final secondGate = Completer<void>();
+      cacheManager.gate = firstGate;
+
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(_url, key: key, cacheManager: cacheManager),
+      );
+      await tester.pump(_afterPlaceholderDelay);
+
+      cacheManager.gate = secondGate;
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(otherUrl, key: key, cacheManager: cacheManager),
+      );
+
+      // The new load finishes first, then the stale one (which succeeds).
+      secondGate.complete();
+      await tester.pumpAndSettle();
+      expect(shownSvgBytes(tester), otherSvgBytes);
+
+      firstGate.complete();
+      await tester.pumpAndSettle();
+
+      // A rebuild that does not reload must still show the new image.
+      await pumpImage(
+        tester,
+        CachedNetworkSVGImage(otherUrl, key: key, cacheManager: cacheManager),
+      );
+      expect(shownSvgBytes(tester), otherSvgBytes);
     });
   });
 
